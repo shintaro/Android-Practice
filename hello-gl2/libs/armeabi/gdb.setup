@@ -1,0 +1,2 @@
+set solib-search-path /home/agatsuma/bin/android-ndk-r5/samples/hello-gl2/obj/local/armeabi
+directory /home/agatsuma/bin/android-ndk-r5/platforms/android-8/arch-arm/usr/include /home/agatsuma/bin/android-ndk-r5/sources/cxx-stl/system/include /home/agatsuma/bin/android-ndk-r5/samples/hello-gl2/jni /home/agatsuma/bin/android-ndk-r5/sources/cxx-stl/system
