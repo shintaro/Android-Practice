@@ -14,128 +14,167 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.MenuItem.OnMenuItemClickListener;
 
 public class SurfaceViewSample extends Activity {
-    /** Called when the activity is first created. */
 	private MySurfaceView mSurfaceView;
 	private int first;
-	final private boolean useTimer = false;
-    private int y;
-    
+	private int y =0;
+
+	private Timer mTimer;
+	private Handler mHandler;
+   
 	class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback {
 
 		private Bitmap[] bmp;
-		private Timer mTimer;
-		private Handler mHandler = new Handler();
-		private SurfaceHolder mHolder;
+		protected SurfaceHolder mHolder;
        private Resources r;
        public int ypos;
-//		private Canvas canvas;
+       private boolean drawByEvent = true;
 
 		public MySurfaceView(Context context) {
 			super(context);
 			bmp = new Bitmap[100];
-			mTimer = new Timer(true);
 			getHolder().addCallback(this);
 			r = getResources();
 		}
 
 		@Override
 		public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-			Log.d("TEST", "surfaceChanged");
+			Log.d("***************", "surfaceChanged");
 		}
 
 		@Override
 		public void surfaceCreated(SurfaceHolder holder) {
-			Log.d("TEST", "surfaceCreated");
+			Log.d("***************", "surfaceCreated");
 			mHolder = holder;
 			
-	        for (int i = 0; i < 24; i++) {
-	        	for (int j = 0; j < 4; j++) {
-	        		bmp[i*4+j] = BitmapFactory.decodeResource(r, idd[i*4+j]);
+			for (int i = 0; i < 24; i++) {
+				for (int j = 0; j < 4; j++) {
+					bmp[i*4+j] = BitmapFactory.decodeResource(r, idd[i*4+j]);
 	        		bmp[i*4+j] = Bitmap.createScaledBitmap(bmp[i*4+j], 64, 64, false);
 	        	}
 	        }
-	        
-	        if (useTimer) {
-				mTimer.schedule(new TimerTask() {
-					public void run() {
-						mHandler.post(new Runnable() {
-							public void run() {
-								draw(mHolder);
-							}
-						});
-					}
-				}, 17, 17);
-	        } else {
-	        	new Thread(new Runnable() {
-	        		public void run() {
-	        			while (true)
-	        				draw(mHolder);
-	        		}}).start();
-	        	}
+			draw2();
 		}
 
 		public void draw(SurfaceHolder holder) {
-			Canvas canvas = holder.lockCanvas();
+		}		
+		
+		public void draw2() {
+			Canvas canvas = mHolder.lockCanvas();
 			Paint paint = new Paint();
 			canvas.drawColor(Color.WHITE);
-//			paint.setColor(Color.BLUE);
-//			paint.setAntiAlias(true);
-//			paint.setTextSize(24);
-//			canvas.drawText("Hello, SurfaceView!", 0, paint.getTextSize(), paint);
 
-	        for (int i = 0; i < 24; i++) {
-	        	for (int j = 0; j < 4; j++) {
-	        		canvas.drawBitmap(bmp[i*4+j], 32+(j*120), 120*(i+1)+ypos, paint);
+			for (int i = 0; i < 24; i++) {
+				for (int j = 0; j < 4; j++) {
+					canvas.drawBitmap(bmp[i*4+j], 32+(j*120), 120*(i+1)+ypos, paint);
 	        	}
 	        }
 	        
-			holder.unlockCanvasAndPost(canvas);			
+			mHolder.unlockCanvasAndPost(canvas);			
 		}
 		
 		@Override
 		public void surfaceDestroyed(SurfaceHolder holder) {
-			Log.d("TEST", "surfaceDestroyed");
-			//mSurfaceView = null;
-			bmp = null;
-			mTimer = null;
-			mHandler = null;
-			mHolder = null;
-			r = null;
+			Log.d("*****************", "surfaceDestroyed");
+
 		}
-	}
+	}		
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	mSurfaceView = new MySurfaceView(this);
        super.onCreate(savedInstanceState);
        setContentView(mSurfaceView);
+
+		if (!mSurfaceView.drawByEvent) {
+			startTimerEvent();
+		}
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-    	if (event.getAction() == MotionEvent.ACTION_DOWN)
+    	if (event.getAction() == MotionEvent.ACTION_DOWN) {
     		first = (int)event.getY();
-	        
-    	if (event.getAction() == MotionEvent.ACTION_MOVE)
-    		mSurfaceView.ypos = y + (int)event.getY() - first;
-    	Log.v("Move Amount", Integer.toString(mSurfaceView.ypos));
-
-       if (event.getAction() == MotionEvent.ACTION_UP)
-       	y = mSurfaceView.ypos;
+    	}
     	
-        return true;
+    	if (event.getAction() == MotionEvent.ACTION_MOVE) {
+    		mSurfaceView.ypos = y + (int)event.getY() - first;
+			mSurfaceView.draw2();
+//    	Log.v("Move Amount", Integer.toString(mSurfaceView.ypos));
+    	}
+    	
+    	if (event.getAction() == MotionEvent.ACTION_UP) {
+    		y = mSurfaceView.ypos;
+    	}
+       
+       return true;
     }
     
-    @Override
-    public void onDestroy() {
-    	//mSurfaceView = null;
-    }
-    
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuItem item1, item2;
+		item1 = menu.add("Timer Draw Mode");
+		item1.setCheckable(true);
+		item2 = menu.add("Event Draw Mode");
+		item2.setCheckable(true);
+		if (mSurfaceView.drawByEvent) {
+			item1.setChecked(true);
+			item2.setChecked(false);	
+		} else {
+			item1.setChecked(false);
+			item2.setChecked(true);				
+		}
+			
+		item1.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+		    public boolean onMenuItemClick(MenuItem item) {
+		    	if (mSurfaceView.drawByEvent) {
+		    		mSurfaceView.drawByEvent = !mSurfaceView.drawByEvent;
+		    		startTimerEvent();
+		    	}
+				return false;
+		    }
+		});
+
+		item2.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+		    public boolean onMenuItemClick(MenuItem item) {
+		    	if (!mSurfaceView.drawByEvent) {
+		    		mSurfaceView.drawByEvent = !mSurfaceView.drawByEvent;
+					stopTimerEvent();
+				}
+				return false;
+		    }
+		});
+		
+		return true;
+	}
+	
+	private void startTimerEvent() {
+		mTimer = new Timer(true);
+		mHandler = new Handler();
+		mTimer.schedule(new TimerTask() {
+			public void run() {
+				mHandler.post(new Runnable() {
+					public void run() {
+						mSurfaceView.draw2();
+						}
+					});
+				}
+			}, 17, 17);
+	}
+
+	private void stopTimerEvent() {
+		mTimer.cancel();
+		mTimer = null;
+		mHandler = null;
+	}
+
     static final int[] idd = {
 		R.drawable.aim,
 		R.drawable.amazon1,
