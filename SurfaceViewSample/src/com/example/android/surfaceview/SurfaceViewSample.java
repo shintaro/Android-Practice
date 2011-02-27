@@ -23,16 +23,17 @@ public class SurfaceViewSample extends Activity {
 	private MySurfaceView mSurfaceView;
 	private int first;
 	final private boolean useTimer = false;
-	
+    private int y;
+    
 	class MySurfaceView extends SurfaceView implements SurfaceHolder.Callback {
 
 		private Bitmap[] bmp;
 		private Timer mTimer;
 		private Handler mHandler = new Handler();
 		private SurfaceHolder mHolder;
-        private Resources r;
-        public int ypos;
-		//		private Canvas canvas;
+       private Resources r;
+       public int ypos;
+//		private Canvas canvas;
 
 		public MySurfaceView(Context context) {
 			super(context);
@@ -42,19 +43,20 @@ public class SurfaceViewSample extends Activity {
 			r = getResources();
 		}
 
+		@Override
 		public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 			Log.d("TEST", "surfaceChanged");
 		}
 
-//		@Override
+		@Override
 		public void surfaceCreated(SurfaceHolder holder) {
 			Log.d("TEST", "surfaceCreated");
 			mHolder = holder;
 			
-	        for (int i = 1; i < 25; i++) {
-	        	for (int j = 1; j < 5; j++) {
-	        		bmp[i*j] = BitmapFactory.decodeResource(r, idd[(j-1)+((i-1)*4)]);
-	        		bmp[i*j] = Bitmap.createScaledBitmap(bmp[i*j], 64, 64, false);
+	        for (int i = 0; i < 24; i++) {
+	        	for (int j = 0; j < 4; j++) {
+	        		bmp[i*4+j] = BitmapFactory.decodeResource(r, idd[i*4+j]);
+	        		bmp[i*4+j] = Bitmap.createScaledBitmap(bmp[i*4+j], 64, 64, false);
 	        	}
 	        }
 	        
@@ -86,18 +88,19 @@ public class SurfaceViewSample extends Activity {
 //			paint.setTextSize(24);
 //			canvas.drawText("Hello, SurfaceView!", 0, paint.getTextSize(), paint);
 
-	        for (int i = 1; i < 25; i++) {
-	        	for (int j = 1; j < 5; j++) {
-	        		canvas.drawBitmap(bmp[i*j], 32+((j-1)*120), 120*i+ypos, paint);
+	        for (int i = 0; i < 24; i++) {
+	        	for (int j = 0; j < 4; j++) {
+	        		canvas.drawBitmap(bmp[i*4+j], 32+(j*120), 120*(i+1)+ypos, paint);
 	        	}
 	        }
 	        
 			holder.unlockCanvasAndPost(canvas);			
 		}
 		
-	//	@Override
+		@Override
 		public void surfaceDestroyed(SurfaceHolder holder) {
 			Log.d("TEST", "surfaceDestroyed");
+			//mSurfaceView = null;
 			bmp = null;
 			mTimer = null;
 			mHandler = null;
@@ -109,21 +112,29 @@ public class SurfaceViewSample extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	mSurfaceView = new MySurfaceView(this);
-        super.onCreate(savedInstanceState);
-        setContentView(mSurfaceView);
+       super.onCreate(savedInstanceState);
+       setContentView(mSurfaceView);
     }
-    
+
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
     	if (event.getAction() == MotionEvent.ACTION_DOWN)
     		first = (int)event.getY();
 	        
     	if (event.getAction() == MotionEvent.ACTION_MOVE)
-    		mSurfaceView.ypos = (int)event.getY() - first;
+    		mSurfaceView.ypos = y + (int)event.getY() - first;
     	Log.v("Move Amount", Integer.toString(mSurfaceView.ypos));
- 
+
+       if (event.getAction() == MotionEvent.ACTION_UP)
+       	y = mSurfaceView.ypos;
+    	
         return true;
     }
     
+    @Override
+    public void onDestroy() {
+    	//mSurfaceView = null;
+    }
     
     static final int[] idd = {
 		R.drawable.aim,
