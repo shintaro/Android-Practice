@@ -6,6 +6,7 @@ import java.util.TimerTask;
 import android.app.Activity;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +21,7 @@ public class GLScrollSample extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Debug.startMethodTracing("GLScrollSample");
 		mGLSurfaceView = new MyGLSurfaceView(this);
 		mGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 		setContentView(mGLSurfaceView);
@@ -97,5 +99,12 @@ public class GLScrollSample extends Activity {
 	protected void onPause() {
 		super.onPause();
 		mGLSurfaceView.onPause();
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+//		mGLSurfaceView.onDestroy();
+		Debug.stopMethodTracing();
 	}
 }
