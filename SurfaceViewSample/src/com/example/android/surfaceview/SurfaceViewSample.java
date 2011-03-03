@@ -12,6 +12,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
@@ -25,7 +26,11 @@ public class SurfaceViewSample extends Activity {
 	private MySurfaceView mSurfaceView;
 	private int first;
 	private int y =0;
-
+	private long timerStart = 0;
+	private boolean isTraced = false;
+	private boolean isTracing = false;
+	private boolean isTraceOut = false;
+	
 	private Timer mTimer;
 	private Handler mHandler;
    
@@ -33,9 +38,9 @@ public class SurfaceViewSample extends Activity {
 
 		private Bitmap[] bmp;
 		protected SurfaceHolder mHolder;
-       private Resources r;
-       public int ypos;
-       private boolean drawByEvent = true;
+		private Resources r;
+		public int ypos;
+		private boolean drawByEvent = true;
 
 		public MySurfaceView(Context context) {
 			super(context);
@@ -44,12 +49,12 @@ public class SurfaceViewSample extends Activity {
 			r = getResources();
 		}
 
-		@Override
+		//@Override
 		public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 			Log.d("***************", "surfaceChanged");
 		}
 
-		@Override
+		//@Override
 		public void surfaceCreated(SurfaceHolder holder) {
 			Log.d("***************", "surfaceCreated");
 			mHolder = holder;
@@ -60,7 +65,13 @@ public class SurfaceViewSample extends Activity {
 	        		bmp[i*4+j] = Bitmap.createScaledBitmap(bmp[i*4+j], 64, 64, false);
 	        	}
 	        }
-			draw2();
+			
+			if (!mSurfaceView.drawByEvent) {
+				startTimerEvent();
+			}
+			else { 			
+				draw2();
+			}
 		}
 
 		public void draw(SurfaceHolder holder) {
@@ -80,34 +91,37 @@ public class SurfaceViewSample extends Activity {
 			mHolder.unlockCanvasAndPost(canvas);			
 		}
 		
-		@Override
+		//@Override
 		public void surfaceDestroyed(SurfaceHolder holder) {
 			Log.d("*****************", "surfaceDestroyed");
-
 		}
 	}		
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	mSurfaceView = new MySurfaceView(this);
-       super.onCreate(savedInstanceState);
-       setContentView(mSurfaceView);
+    	super.onCreate(savedInstanceState);
+    	setContentView(mSurfaceView);
+    }
 
-		if (!mSurfaceView.drawByEvent) {
-			startTimerEvent();
-		}
+    @Override
+    public void onDestroy() {
+		super.onDestroy();
+		mSurfaceView = null;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+    	trace();
+    	
     	if (event.getAction() == MotionEvent.ACTION_DOWN) {
     		first = (int)event.getY();
     	}
     	
     	if (event.getAction() == MotionEvent.ACTION_MOVE) {
     		mSurfaceView.ypos = y + (int)event.getY() - first;
-			mSurfaceView.draw2();
-//    	Log.v("Move Amount", Integer.toString(mSurfaceView.ypos));
+    		if (mSurfaceView.drawByEvent)
+    			mSurfaceView.draw2();
     	}
     	
     	if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -136,6 +150,9 @@ public class SurfaceViewSample extends Activity {
 		    public boolean onMenuItemClick(MenuItem item) {
 		    	if (mSurfaceView.drawByEvent) {
 		    		mSurfaceView.drawByEvent = !mSurfaceView.drawByEvent;
+		    		timerStart = 0;
+		    		isTraced = false;
+		    		isTracing = false;
 		    		startTimerEvent();
 		    	}
 				return false;
@@ -146,13 +163,38 @@ public class SurfaceViewSample extends Activity {
 		    public boolean onMenuItemClick(MenuItem item) {
 		    	if (!mSurfaceView.drawByEvent) {
 		    		mSurfaceView.drawByEvent = !mSurfaceView.drawByEvent;
-					stopTimerEvent();
+		    		timerStart = 0;
+		    		isTraced = false;
+		    		isTracing = false;
+		    		stopTimerEvent();
 				}
 				return false;
 		    }
 		});
 		
 		return true;
+	}
+
+	private void trace() {
+		if (isTraceOut) {
+	    	if (isTraced == false) {
+	    		if (timerStart == 0) {
+	    			timerStart = System.currentTimeMillis();
+	    		} 
+	
+	    		if (System.currentTimeMillis() - 1000 > timerStart && isTracing == false) {
+	    			timerStart = System.currentTimeMillis();
+	    			isTracing = true;
+	    			Debug.startMethodTracing("SurfaceViewSample_Event");
+	    		}
+	    		
+	    		if (System.currentTimeMillis() - 1000 > timerStart && isTracing == true) {
+	    				Debug.stopMethodTracing();
+	    				isTracing = false;
+	    				isTraced = true;
+	    		}
+	    	}
+		}
 	}
 	
 	private void startTimerEvent() {
@@ -162,7 +204,8 @@ public class SurfaceViewSample extends Activity {
 			public void run() {
 				mHandler.post(new Runnable() {
 					public void run() {
-						mSurfaceView.draw2();
+						trace();
+				    	mSurfaceView.draw2();
 						}
 					});
 				}

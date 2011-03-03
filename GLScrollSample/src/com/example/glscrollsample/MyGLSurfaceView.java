@@ -9,7 +9,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
 	private MyRenderer mRenderer;	
 	private float first;
 	private float y;
-	public boolean drawByEvent = true;
+	public boolean drawByEvent = false;
 	private int eventCounter;
 	private long last;
 	
