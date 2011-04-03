@@ -115,26 +115,25 @@ public class Icon {
 	}
 
 	public void draw(GL10 gl, float x, float y, int tex) {		
-        //Bind our only previously generated texture in this case
-		gl.glBindTexture(GL10.GL_TEXTURE_2D, textures[tex]);
-
+/*
         //Point to our buffers
 		gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
 		gl.glEnableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
 
 		//Set the face rotation
 		gl.glFrontFace(GL10.GL_CW);
-
+*/
 		//Enable vertex buffer
 //		gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
 
 		gl.glPushMatrix();
 		
 		//Set The Color To Blue
-		gl.glColor4f(0.5f, 0.5f, 1.0f, 1.0f);	
+//		gl.glColor4f(0.5f, 0.5f, 1.0f, 1.0f);	
 		
 		gl.glTranslatef(x, y, 0.0f);
-
+        //Bind our only previously generated texture in this case
+		gl.glBindTexture(GL10.GL_TEXTURE_2D, textures[tex]);
 		//Point to our vertex buffer
 		gl.glVertexPointer(3, GL10.GL_FLOAT, 0, vertexBuffer);
 		gl.glEnable(GL10.GL_TEXTURE_2D);
@@ -144,10 +143,11 @@ public class Icon {
 		gl.glDrawArrays(GL10.GL_TRIANGLE_STRIP, 0, vertices.length / 3);
 
 		gl.glPopMatrix();
-		
+/*
 		//Disable the client state before leaving
 		gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
 		gl.glDisableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
+*/
 	}
 
     public void loadGLTexture(GL10 gl, Context context) {

@@ -26,10 +26,14 @@ public class SurfaceViewSample extends Activity {
 	private MySurfaceView mSurfaceView;
 	private int first;
 	private int y =0;
-	private long timerStart = 0;
-	private boolean isTraced = false;
-	private boolean isTracing = false;
-	private boolean isTraceOut = false;
+	protected long drawTimerStart = 0;
+	protected long drawTimeDuration = 0;
+
+	private int fpsCounter = 0;
+	
+	private long oneSecondTimerStart = 0;
+	private long now;
+	
 	
 	private Timer mTimer;
 	private Handler mHandler;
@@ -51,25 +55,25 @@ public class SurfaceViewSample extends Activity {
 
 		//@Override
 		public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-			Log.d("***************", "surfaceChanged");
 		}
 
 		//@Override
 		public void surfaceCreated(SurfaceHolder holder) {
-			Log.d("***************", "surfaceCreated");
 			mHolder = holder;
 			
 			for (int i = 0; i < 24; i++) {
 				for (int j = 0; j < 4; j++) {
 					bmp[i*4+j] = BitmapFactory.decodeResource(r, idd[i*4+j]);
-	        		bmp[i*4+j] = Bitmap.createScaledBitmap(bmp[i*4+j], 64, 64, false);
-	        	}
+//	        		bmp[i*4+j] = Bitmap.createScaledBitmap(bmp[i*4+j], 64, 64, false);
+	        		bmp[i*4+j] = Bitmap.createScaledBitmap(bmp[i*4+j], 32, 32, false);
+				}
 	        }
 			
 			if (!mSurfaceView.drawByEvent) {
 				startTimerEvent();
 			}
-			else { 			
+			else {
+				drawTimerStart = System.nanoTime();
 				draw2();
 			}
 		}
@@ -78,17 +82,50 @@ public class SurfaceViewSample extends Activity {
 		}		
 		
 		public void draw2() {
+			fpsCounter++;
+			drawTimerStart = System.nanoTime();
+			if (oneSecondTimerStart == 0)
+				oneSecondTimerStart = System.nanoTime();
+			
 			Canvas canvas = mHolder.lockCanvas();
 			Paint paint = new Paint();
 			canvas.drawColor(Color.WHITE);
-
+/*			
 			for (int i = 0; i < 24; i++) {
 				for (int j = 0; j < 4; j++) {
 					canvas.drawBitmap(bmp[i*4+j], 32+(j*120), 120*(i+1)+ypos, paint);
 	        	}
 	        }
-	        
-			mHolder.unlockCanvasAndPost(canvas);			
+*/
+			for (int k = 0; k < 10; k++) {
+				for (int i = 0; i < 12; i++) {
+					for (int j = 0; j < 8; j++) {
+						canvas.drawBitmap(bmp[i*8+j], (j*64), 64*(i+(k*6+1))+ypos, paint);
+		        	}
+		        }
+			}
+/*
+			for (int k = 0; k < 20; k++) {
+				for (int i = 0; i < 6; i++) {
+					for (int j = 0; j < 16; j++) {
+						canvas.drawBitmap(bmp[i*8+j], (j*32), 32*(i+(k*6+1))+ypos, paint);
+		        	}
+		        }
+			}
+*/			
+			mHolder.unlockCanvasAndPost(canvas);
+			
+			drawTimeDuration += System.nanoTime() - drawTimerStart;
+			now = System.nanoTime();
+			if (now - 1000000000 > oneSecondTimerStart) {
+				Log.i("########", String.format("Draw Rate = %f; FPS = %f", 
+						(float)drawTimeDuration/(float)(now-oneSecondTimerStart),
+						(float)fpsCounter/(float)(now-oneSecondTimerStart)*1000000000));
+				oneSecondTimerStart = 0;
+				drawTimeDuration = 0;
+				drawTimerStart = now;
+				fpsCounter = 0;
+			}
 		}
 		
 		//@Override
@@ -107,13 +144,14 @@ public class SurfaceViewSample extends Activity {
     @Override
     public void onDestroy() {
 		super.onDestroy();
+		stopTimerEvent();
 		mSurfaceView = null;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-    	trace();
-    	
+//    	trace();
+
     	if (event.getAction() == MotionEvent.ACTION_DOWN) {
     		first = (int)event.getY();
     	}
@@ -127,7 +165,19 @@ public class SurfaceViewSample extends Activity {
     	if (event.getAction() == MotionEvent.ACTION_UP) {
     		y = mSurfaceView.ypos;
     	}
-       
+/*    	
+    	long now = System.currentTimeMillis();
+    	if (now - 1000 > eventTimer) {
+			Log.i("***", String.format("FPS=%f, Draw=%f, Draw=%f", 
+					(float)fpsCounter/(now - eventTimer)*1000, 
+					(float)eventCounter/(now - eventTimer)*1000,
+					(float)drawTimeDuration/(now - eventTimer)));
+    		eventTimer = System.currentTimeMillis();
+    		eventCounter = 0;
+    		fpsCounter = 0;
+			drawTimeDuration = 0;
+    	}
+*/       
        return true;
     }
     
@@ -150,9 +200,6 @@ public class SurfaceViewSample extends Activity {
 		    public boolean onMenuItemClick(MenuItem item) {
 		    	if (mSurfaceView.drawByEvent) {
 		    		mSurfaceView.drawByEvent = !mSurfaceView.drawByEvent;
-		    		timerStart = 0;
-		    		isTraced = false;
-		    		isTracing = false;
 		    		startTimerEvent();
 		    	}
 				return false;
@@ -163,9 +210,6 @@ public class SurfaceViewSample extends Activity {
 		    public boolean onMenuItemClick(MenuItem item) {
 		    	if (!mSurfaceView.drawByEvent) {
 		    		mSurfaceView.drawByEvent = !mSurfaceView.drawByEvent;
-		    		timerStart = 0;
-		    		isTraced = false;
-		    		isTracing = false;
 		    		stopTimerEvent();
 				}
 				return false;
@@ -174,21 +218,21 @@ public class SurfaceViewSample extends Activity {
 		
 		return true;
 	}
-
+/*
 	private void trace() {
 		if (isTraceOut) {
 	    	if (isTraced == false) {
-	    		if (timerStart == 0) {
-	    			timerStart = System.currentTimeMillis();
+	    		if (eventTimerStart == 0) {
+	    			eventTimerStart = System.currentTimeMillis();
 	    		} 
 	
-	    		if (System.currentTimeMillis() - 1000 > timerStart && isTracing == false) {
-	    			timerStart = System.currentTimeMillis();
+	    		if (System.currentTimeMillis() - 1000 > eventTimerStart && isTracing == false) {
+	    			eventTimerStart = System.currentTimeMillis();
 	    			isTracing = true;
 	    			Debug.startMethodTracing("SurfaceViewSample_Event");
 	    		}
 	    		
-	    		if (System.currentTimeMillis() - 1000 > timerStart && isTracing == true) {
+	    		if (System.currentTimeMillis() - 1000 > eventTimerStart && isTracing == true) {
 	    				Debug.stopMethodTracing();
 	    				isTracing = false;
 	    				isTraced = true;
@@ -196,7 +240,7 @@ public class SurfaceViewSample extends Activity {
 	    	}
 		}
 	}
-	
+*/	
 	private void startTimerEvent() {
 		mTimer = new Timer(true);
 		mHandler = new Handler();
@@ -204,7 +248,7 @@ public class SurfaceViewSample extends Activity {
 			public void run() {
 				mHandler.post(new Runnable() {
 					public void run() {
-						trace();
+//						trace();
 				    	mSurfaceView.draw2();
 						}
 					});
