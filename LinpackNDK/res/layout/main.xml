@@ -1,11 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="fill_parent"
-    android:layout_width="match_parent" android:baselineAligned="true" android:orientation="vertical">
-    <Button android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/button1" android:text="Button"></Button>
-    <ScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/scrollView1">
-        <LinearLayout android:layout_width="match_parent" android:id="@+id/linearLayout1" android:layout_height="match_parent">
-            <TextView android:layout_width="match_parent" android:id="@+id/textView1" android:layout_height="wrap_content" android:text="TextView"></TextView>
+    android:layout_width="match_parent" 
+    android:baselineAligned="true" 
+    android:orientation="vertical">
+    
+    <TableLayout 
+    	android:layout_height="wrap_content" 
+    	android:id="@+id/tableLayout1" 
+    	android:layout_width="match_parent">
+		<TableRow>
+            <TextView 
+            	android:layout_width="match_parent" 
+            	android:id="@+id/textView2" 
+            	android:layout_height="wrap_content" 
+            	android:text="Array Size:"/>
+		    <EditText 
+		    	android:text="200" 
+		    	android:layout_height="wrap_content" 
+		    	android:id="@+id/editText1" 
+		    	android:layout_width="150px"/>
+ 			<Button 
+    			android:layout_height="wrap_content" 
+   			 	android:id="@+id/button1" 
+    			android:text="START" 
+    			android:layout_width="200px"/>
+    	</TableRow>
+	</TableLayout>
+	
+    <ScrollView 
+    	android:layout_width="match_parent" 
+    	android:layout_height="wrap_content" 
+    	android:id="@+id/scrollView1">
+        <LinearLayout 
+        	android:layout_width="match_parent" 
+        	android:id="@+id/linearLayout1" 
+        	android:layout_height="match_parent">
+            <TextView 
+            	android:layout_width="match_parent" 
+            	android:id="@+id/textView1" 
+            	android:layout_height="wrap_content" 
+            	android:text="Please Enter Array Size and press START!"/>
         </LinearLayout>
     </ScrollView>
 

@@ -18,7 +18,7 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := linpack-jni
 LOCAL_SRC_FILES := linpack-jni.c
-LOCAL_CFLAGS    := -Werror -O3 -DSP -DROLL -lm
-#LOCAL_LDLIBS    := -lm
+LOCAL_CFLAGS    := -Werror -llog -O3 -DSP -DROLL -lm
+LOCAL_LDLIBS    := -llog -lm
 
 include $(BUILD_SHARED_LIBRARY)
