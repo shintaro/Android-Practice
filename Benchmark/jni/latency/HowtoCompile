@@ -1,0 +1,1 @@
+gcc -DRUSAGE -DHAVE_uint=1 -DHAVE_int64_t=1 -DHAVE_pmap_clnt_h -DHAVE_socklen_t -DHAVE_DRAND48 -DHAVE_SCHED_SETAFFINITY=1  lat_mem_rd.c lib_mem.c lib_sched.c lib_tcp.c lib_timing.c lib_stats.c lib_udp.c lib_unix.c getopt.c -lm

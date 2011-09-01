@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <Button android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/bAutoTest" android:text="@string/bAutoTest"></Button>
+    
+    <TableLayout 
+    	android:layout_height="wrap_content" 
+    	android:id="@+id/tableLayout1" 
+    	android:layout_width="match_parent">
+        <TableRow android:id="@+id/tableRow2" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" android:text="@string/tvMemSize" android:id="@+id/tvMemSize"></TextView>
+            <EditText android:layout_height="wrap_content" android:inputType="number" android:layout_width="wrap_content" android:id="@+id/etMemSize" android:text="@string/etMemSize">
+                <requestFocus></requestFocus>
+            </EditText>
+            <TextView android:layout_height="wrap_content" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceSmall" android:text="@string/tvStride" android:id="@+id/tvStride"></TextView>
+            <EditText android:layout_height="wrap_content" android:inputType="number" android:layout_width="wrap_content" android:id="@+id/etStride" android:text="@string/etStride">
+            </EditText>
+        </TableRow>
+	</TableLayout>
+    <Button android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/bStart" android:text="@string/bStart"></Button>
+    <ScrollView android:id="@+id/scrollView1" android:layout_height="wrap_content" android:layout_width="match_parent">
+        <LinearLayout android:id="@+id/linearLayout1" android:layout_width="match_parent" android:layout_height="match_parent">
+            <TextView android:layout_height="wrap_content" android:layout_width="match_parent" android:text="@string/tvResult" android:id="@+id/tvResult"></TextView>
+        </LinearLayout>
+    </ScrollView>
+    
+</LinearLayout>

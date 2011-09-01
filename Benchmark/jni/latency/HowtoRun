@@ -1,0 +1,8 @@
+./a.out Memory_Usage_size_in_MByte Size_of_stride_in_Byte
+
+Example:The following 5 petterns would be enough for MID
+./a.out 32 16
+./a.out 32 32
+./a.out 32 64
+./a.out 32 128
+./a.out 32 256

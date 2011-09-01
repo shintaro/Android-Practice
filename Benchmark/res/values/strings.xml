@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello World, Benchmark!</string>
+    <string name="app_name">Benchmark</string>
+    <string name="tvMemSize">Mem Size: </string>
+    <string name="tvStride">Stride: </string>
+    <string name="tvResult">Please Start Test</string>
+    <string name="bStart">START</string>
+    <string name="bAutoTest">Auto Test</string>
+    <string name="etMemSize">32</string>
+    <string name="etStride">32</string>
+</resources>
